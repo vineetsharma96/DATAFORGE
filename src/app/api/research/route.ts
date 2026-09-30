@@ -41,7 +41,7 @@ export async function POST(req: Request) {
       provider: activeProvider,
       providerModel:
         activeProvider === 'gemini'
-          ? process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+          ? process.env.GEMINI_MODEL || 'gemini-1.5-flash'
           : activeProvider === 'ollama'
           ? process.env.OLLAMA_MODEL || 'llama3'
           : 'Rule-Based Heuristic',
