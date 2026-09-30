@@ -59,7 +59,7 @@ class AIServiceManager {
         statusText: geminiHealth.isAvailable
           ? 'Connected'
           : geminiHealth.error || 'API Key Required',
-        model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+        model: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
         latencyMs: geminiHealth.latencyMs,
         lastChecked: now,
         error: geminiHealth.error,
