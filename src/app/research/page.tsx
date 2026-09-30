@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   RefreshCw,
   Sliders,
+  Check,
 } from 'lucide-react';
 import { ResearchTask, WorkflowNode, WorkflowEvent } from '@/types/research';
 import { DEMO_SCENARIOS } from '@/lib/synthetic/scenarios';
@@ -34,7 +35,7 @@ function ResearchContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditingReqs, setIsEditingReqs] = useState(false);
 
-  // Load task if taskId present
+  // Load task and stream events
   useEffect(() => {
     if (!initialTaskId) return;
 
@@ -48,7 +49,6 @@ function ResearchContent() {
       })
       .catch((err) => console.error('Error fetching task', err));
 
-    // Connect to SSE stream
     const eventSource = new EventSource(`/api/research/${initialTaskId}/stream`);
 
     eventSource.addEventListener('init', (e) => {
@@ -65,7 +65,11 @@ function ResearchContent() {
           if (!prev) return null;
           const updatedNodes = prev.workflow.nodes.map((n) => {
             if (n.id === updateEvent.nodeId && updateEvent.nodeStatus) {
-              return { ...n, status: updateEvent.nodeStatus, recordsProcessed: updateEvent.data?.recordsProcessed ?? n.recordsProcessed };
+              return {
+                ...n,
+                status: updateEvent.nodeStatus,
+                recordsProcessed: updateEvent.data?.recordsProcessed ?? n.recordsProcessed,
+              };
             }
             return n;
           });
@@ -124,17 +128,17 @@ function ResearchContent() {
   const isCompleted = currentTask?.status === 'COMPLETED';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Research Request Header / Input (DESIGN.md Section 18 & 20) */}
-      <div className="dataforge-card" style={{ padding: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-              RESEARCH REQUEST
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', maxWidth: '1360px', margin: '0 auto' }}>
+      {/* Top Header Card */}
+      <div className="glass-panel" style={{ padding: '24px 28px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-blue)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              RESEARCH SPECIFICATION
             </span>
             {currentTask && (
-              <span className="badge badge-running">
-                {currentTask.status} ({currentTask.progressPercent}%)
+              <span className="badge-pill badge-pill-accent">
+                {currentTask.status} • {currentTask.progressPercent}%
               </span>
             )}
           </div>
@@ -143,18 +147,18 @@ function ResearchContent() {
             {isCompleted && (
               <button
                 onClick={() => router.push(`/datasets?id=${currentTask.datasetId || 'dataset_flagship_demo'}`)}
-                className="btn-primary"
-                style={{ padding: '6px 14px', fontSize: '12px' }}
+                className="btn-luxury-primary"
+                style={{ padding: '7px 16px', fontSize: '13px' }}
               >
-                <Database size={14} />
-                <span>Explore Dataset</span>
+                <Database size={15} />
+                <span>Explore Generated Dataset</span>
                 <ArrowRight size={14} />
               </button>
             )}
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '14px' }}>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
@@ -162,41 +166,40 @@ function ResearchContent() {
             rows={2}
             style={{
               flex: 1,
-              background: 'var(--bg-primary)',
-              border: '1px solid var(--border-primary)',
-              borderRadius: 'var(--radius-md)',
-              padding: '12px 14px',
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border-default)',
+              borderRadius: '10px',
+              padding: '14px 16px',
               fontSize: '14px',
               resize: 'none',
               outline: 'none',
+              boxShadow: 'var(--shadow-sm)',
             }}
           />
 
           <button
             onClick={handleStartResearch}
             disabled={isLoading || currentTask?.status === 'RUNNING'}
-            className="btn-primary"
-            style={{ padding: '0 20px', whiteSpace: 'nowrap' }}
+            className="btn-luxury-primary"
+            style={{ padding: '0 24px', whiteSpace: 'nowrap' }}
           >
             <Play size={15} fill="currentColor" />
-            <span>{currentTask?.status === 'RUNNING' ? 'Executing...' : 'Start Research'}</span>
+            <span>{currentTask?.status === 'RUNNING' ? 'Executing Pipeline...' : 'Start Research'}</span>
           </button>
         </div>
 
-        {/* Suggested Quick Prompts */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Demo Scenarios:</span>
+        {/* Demo Scenario Selectors */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>Predefined Scenarios:</span>
           {DEMO_SCENARIOS.map((sc) => (
             <button
               key={sc.id}
               onClick={() => setPrompt(sc.prompt)}
+              className="btn-luxury-secondary"
               style={{
                 fontSize: '11px',
-                padding: '3px 8px',
-                borderRadius: 'var(--radius-sm)',
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border-subtle)',
-                color: 'var(--text-secondary)',
+                padding: '4px 10px',
+                borderRadius: '16px',
               }}
             >
               {sc.title}
@@ -205,41 +208,51 @@ function ResearchContent() {
         </div>
       </div>
 
-      {/* Main Workspace Split: AI Understanding + Workflow Execution */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
-        {/* Left Column: AI Understanding Panel (DESIGN.md Section 21) */}
-        <div className="dataforge-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px' }}>
+      {/* Main Workspace Split: AI Understanding vs Workflow Execution */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
+        {/* Left Column: AI Understanding Panel */}
+        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Cpu size={16} color="var(--accent-cyan)" />
-              <h2 style={{ fontSize: '14px', fontWeight: 600 }}>AI Interpretation</h2>
+              <Cpu size={16} color="var(--accent-blue)" />
+              <h2 style={{ fontSize: '15px', fontWeight: 700 }}>AI Interpretation</h2>
             </div>
             <button
               onClick={() => setIsEditingReqs(!isEditingReqs)}
-              style={{ fontSize: '11px', color: 'var(--accent-cyan)', background: 'transparent' }}
+              style={{ fontSize: '11px', color: 'var(--accent-blue)', fontWeight: 600 }}
             >
-              {isEditingReqs ? 'Done' : 'Edit Requirements'}
+              {isEditingReqs ? 'Done' : 'Edit Spec'}
             </button>
           </div>
 
           {currentTask ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '13px' }}>
               <div>
-                <span style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
                   TARGET ENTITY
                 </span>
-                <div style={{ color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>
+                <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginTop: '2px' }}>
                   {currentTask.requirements.entity || 'Company'}
                 </div>
               </div>
 
               <div>
-                <span style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>
-                  INDUSTRY FILTER
+                <span style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
+                  INDUSTRY VERTICALS
                 </span>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
                   {currentTask.requirements.industries?.map((ind) => (
-                    <span key={ind} style={{ padding: '2px 6px', background: 'var(--bg-secondary)', borderRadius: '3px', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
+                    <span
+                      key={ind}
+                      style={{
+                        padding: '3px 8px',
+                        background: 'var(--bg-surface-elevated)',
+                        borderRadius: '6px',
+                        border: '1px solid var(--border-default)',
+                        fontSize: '11px',
+                        fontWeight: 500,
+                      }}
+                    >
                       {ind}
                     </span>
                   ))}
@@ -247,8 +260,8 @@ function ResearchContent() {
               </div>
 
               <div>
-                <span style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>
-                  GEOGRAPHIC JURISDICTION
+                <span style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
+                  LOCATION JURISDICTION
                 </span>
                 <div style={{ color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>
                   {currentTask.requirements.locations?.join(', ') || 'India'}
@@ -256,39 +269,41 @@ function ResearchContent() {
               </div>
 
               <div>
-                <span style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>
-                  HEADCOUNT BRACKET
+                <span style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
+                  HEADCOUNT THRESHOLD
                 </span>
-                <div style={{ color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>
+                <div style={{ color: 'var(--text-primary)', fontWeight: 600, marginTop: '2px' }}>
                   {currentTask.requirements.employeeRange?.min || 50} – {currentTask.requirements.employeeRange?.max || 500} employees
                 </div>
               </div>
 
               <div>
-                <span style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>
-                  FUNDING RECENCY
+                <span style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
+                  OPPORTUNITY SIGNALS
                 </span>
-                <div style={{ color: 'var(--text-primary)', fontWeight: 500, marginTop: '2px' }}>
-                  {currentTask.requirements.funding?.recency || 'Recent (Last 12-18 Months)'}
-                </div>
-              </div>
-
-              <div>
-                <span style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>
-                  DERIVED SIGNALS
-                </span>
-                <div style={{ color: 'var(--color-warning)', marginTop: '2px', lineHeight: 1.4 }}>
+                <div style={{ color: 'var(--color-warning)', marginTop: '2px', lineHeight: 1.4, fontSize: '12px' }}>
                   {currentTask.requirements.signals?.join(', ') || 'Cybersecurity demand & engineering expansion'}
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '12px' }}>
-                <span style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '10px', fontFamily: 'var(--font-mono)' }}>
-                  PROVENANCE FIELDS
+              <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '14px' }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
+                  REQUIRED PROVENANCE FIELDS
                 </span>
-                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '4px' }}>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '6px' }}>
                   {currentTask.requirements.requiredFields?.map((f) => (
-                    <span key={f} className="font-mono" style={{ fontSize: '10px', padding: '2px 5px', background: 'var(--bg-secondary)', color: 'var(--accent-cyan)' }}>
+                    <span
+                      key={f}
+                      className="font-mono"
+                      style={{
+                        fontSize: '10px',
+                        padding: '2px 6px',
+                        background: 'var(--bg-surface-elevated)',
+                        border: '1px solid var(--border-subtle)',
+                        color: 'var(--accent-blue)',
+                        borderRadius: '4px',
+                      }}
+                    >
                       {f}
                     </span>
                   ))}
@@ -296,47 +311,47 @@ function ResearchContent() {
               </div>
             </div>
           ) : (
-            <div style={{ color: 'var(--text-muted)', fontSize: '12px', textAlign: 'center', padding: '24px 0' }}>
-              Enter a prompt above and click &quot;Start Research&quot; to synthesize requirement interpretation.
+            <div style={{ color: 'var(--text-muted)', fontSize: '13px', textAlign: 'center', padding: '36px 0' }}>
+              Enter prompt and click &quot;Start Research&quot; to synthesize requirements.
             </div>
           )}
 
-          {/* Live Metric Counters (DESIGN.md Section 25) */}
+          {/* Metric Chips */}
           {currentTask && (
             <div
               style={{
                 marginTop: 'auto',
-                paddingTop: '16px',
+                paddingTop: '18px',
                 borderTop: '1px solid var(--border-subtle)',
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                gap: '8px',
+                gap: '10px',
               }}
             >
-              <div style={{ padding: '8px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>DISCOVERED</div>
-                <div className="font-mono" style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>
+              <div style={{ padding: '10px', background: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>DISCOVERED</div>
+                <div className="font-mono" style={{ fontSize: '18px', fontWeight: 700 }}>
                   {currentTask.metrics.recordsDiscovered || 28}
                 </div>
               </div>
 
-              <div style={{ padding: '8px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>VERIFIED</div>
-                <div className="font-mono" style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-verified)' }}>
+              <div style={{ padding: '10px', background: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>VERIFIED</div>
+                <div className="font-mono" style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-success)' }}>
                   {currentTask.metrics.verifiedRecords || 24}
                 </div>
               </div>
 
-              <div style={{ padding: '8px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>DUPLICATES MERGED</div>
-                <div className="font-mono" style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-warning)' }}>
+              <div style={{ padding: '10px', background: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>MERGED DUPLICATES</div>
+                <div className="font-mono" style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-warning)' }}>
                   {currentTask.metrics.duplicatesDetected || 2}
                 </div>
               </div>
 
-              <div style={{ padding: '8px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)' }}>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>CONFLICTS RESOLVED</div>
-                <div className="font-mono" style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-conflict)' }}>
+              <div style={{ padding: '10px', background: 'var(--bg-surface-elevated)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>RESOLVED CONFLICTS</div>
+                <div className="font-mono" style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-conflict)' }}>
                   {currentTask.metrics.conflictsResolved || 2}
                 </div>
               </div>
@@ -344,34 +359,34 @@ function ResearchContent() {
           )}
         </div>
 
-        {/* Right Column: Workflow Visualization & Agent Console (DESIGN.md Section 22, 23, 24) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* Workflow Graph Nodes */}
-          <div className="dataforge-card">
+        {/* Right Column: Interactive Workflow Stepper & Agent Terminal */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Workflow Stepper Panel */}
+          <div className="glass-panel" style={{ padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Activity size={16} color="var(--accent-cyan)" />
-                <h2 style={{ fontSize: '14px', fontWeight: 600 }}>Autonomous Workflow Pipeline</h2>
+                <Activity size={16} color="var(--accent-blue)" />
+                <h2 style={{ fontSize: '15px', fontWeight: 700 }}>Autonomous Pipeline Stepper</h2>
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                Progress: {currentTask?.progressPercent || 0}%
-              </div>
+              <span className="font-mono" style={{ fontSize: '12px', color: 'var(--accent-blue)', fontWeight: 600 }}>
+                {currentTask?.progressPercent || 0}% Complete
+              </span>
             </div>
 
-            {/* Progress Bar with Data Flow Accent */}
-            <div style={{ height: '4px', background: 'var(--bg-primary)', borderRadius: '2px', marginBottom: '20px', overflow: 'hidden' }}>
+            {/* Glowing Gradient Progress Bar */}
+            <div style={{ height: '5px', background: 'var(--bg-app)', borderRadius: '3px', marginBottom: '22px', overflow: 'hidden' }}>
               <div
                 style={{
                   height: '100%',
                   width: `${currentTask?.progressPercent || 0}%`,
-                  background: 'linear-gradient(90deg, #4DDCFF, #5FE3A1)',
+                  background: 'var(--accent-gradient)',
                   transition: 'width 0.4s ease',
                 }}
               />
             </div>
 
-            {/* Workflow Nodes Grid */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {/* Workflow Pipeline Nodes */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {currentTask?.workflow.nodes.map((node, index) => {
                 const isRunning = node.status === 'RUNNING';
                 const isCompleted = node.status === 'COMPLETED';
@@ -383,26 +398,26 @@ function ResearchContent() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      padding: '12px 14px',
-                      background: isRunning ? 'var(--bg-higher)' : 'var(--bg-secondary)',
-                      border: isRunning ? '1px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
-                      borderRadius: 'var(--radius-md)',
+                      padding: '14px 18px',
+                      background: isRunning ? 'var(--bg-surface-elevated)' : 'var(--bg-surface)',
+                      border: isRunning ? '1px solid var(--accent-blue)' : '1px solid var(--border-subtle)',
+                      borderRadius: '10px',
+                      boxShadow: isRunning ? '0 0 16px rgba(99, 102, 241, 0.25)' : 'none',
                       transition: 'all 0.2s ease',
-                      boxShadow: isRunning ? '0 0 10px rgba(77, 220, 255, 0.2)' : 'none',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span className="font-mono" style={{ fontSize: '11px', color: 'var(--text-muted)', width: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <span className="font-mono" style={{ fontSize: '12px', color: 'var(--text-muted)', width: '22px' }}>
                         {String(index + 1).padStart(2, '0')}
                       </span>
 
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontWeight: 600, fontSize: '13px', color: isRunning ? 'var(--accent-cyan)' : 'var(--text-primary)' }}>
+                          <span style={{ fontWeight: 600, fontSize: '14px', color: isRunning ? 'var(--accent-blue)' : 'var(--text-primary)' }}>
                             {node.name}
                           </span>
                         </div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
                           {node.description}
                         </div>
                       </div>
@@ -410,16 +425,15 @@ function ResearchContent() {
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       {isRunning && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-cyan)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-blue)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
                           <RefreshCw size={12} className="animate-spin" />
                           <span>PROCESSING</span>
                         </div>
                       )}
                       {isCompleted && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-verified)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
-                          <CheckCircle2 size={13} />
-                          <span>VERIFIED</span>
-                        </div>
+                        <span className="badge-pill badge-pill-success">
+                          <Check size={11} /> VERIFIED
+                        </span>
                       )}
                       {node.status === 'QUEUED' && (
                         <span style={{ fontSize: '11px', color: 'var(--text-disabled)', fontFamily: 'var(--font-mono)' }}>
@@ -433,12 +447,12 @@ function ResearchContent() {
             </div>
           </div>
 
-          {/* Active Agent Operator Console (DESIGN.md Section 24) */}
-          <div className="dataforge-card" style={{ background: '#07090C', borderColor: 'var(--border-subtle)', padding: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '8px' }}>
-              <Terminal size={14} color="var(--accent-cyan)" />
-              <span style={{ fontSize: '11px', fontWeight: 600, fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
-                Agent Orchestration Terminal
+          {/* Agent Orchestration Terminal */}
+          <div className="glass-panel" style={{ padding: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '10px' }}>
+              <Terminal size={15} color="var(--accent-blue)" />
+              <span style={{ fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>
+                Agent Telemetry Console
               </span>
             </div>
 
@@ -446,12 +460,12 @@ function ResearchContent() {
               style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: '11px',
-                height: '160px',
+                height: '170px',
                 overflowY: 'auto',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '6px',
-                lineHeight: 1.4,
+                gap: '7px',
+                lineHeight: 1.45,
               }}
             >
               {currentTask?.logs.map((log, i) => (
@@ -459,14 +473,14 @@ function ResearchContent() {
                   <span style={{ color: 'var(--text-disabled)' }}>
                     {log.timestamp.split('T')[1]?.substring(0, 8)}
                   </span>
-                  <span style={{ color: log.level === 'error' ? 'var(--color-critical)' : log.level === 'warn' ? 'var(--color-warning)' : 'var(--accent-cyan)' }}>
+                  <span style={{ color: log.level === 'error' ? 'var(--color-danger)' : log.level === 'warn' ? 'var(--color-warning)' : 'var(--accent-blue)' }}>
                     [{log.stage}]
                   </span>
                   <span style={{ color: 'var(--text-primary)' }}>{log.message}</span>
                 </div>
               ))}
               {(!currentTask || currentTask.logs.length === 0) && (
-                <div style={{ color: 'var(--text-disabled)' }}>Terminal awaiting research task execution...</div>
+                <div style={{ color: 'var(--text-disabled)' }}>Awaiting workflow start...</div>
               )}
             </div>
           </div>

@@ -15,7 +15,8 @@ import {
   ShieldCheck,
   Activity,
   Layers,
-  FileSpreadsheet,
+  Zap,
+  Globe2,
 } from 'lucide-react';
 import { DEMO_SCENARIOS } from '@/lib/synthetic/scenarios';
 import { Dataset } from '@/types/dataset';
@@ -61,66 +62,100 @@ export default function OverviewPage() {
   const primaryDataset = datasets[0];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      {/* Top Welcome */}
-      <div>
-        <div style={{ fontSize: '13px', color: 'var(--accent-cyan)', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          Intelligence Command Center
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', maxWidth: '1360px', margin: '0 auto' }}>
+      {/* Hero Header (Stripe / Vercel Modern SaaS Style) */}
+      <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '5px 14px',
+            borderRadius: '24px',
+            background: 'var(--accent-subtle)',
+            border: '1px solid rgba(99, 102, 241, 0.25)',
+            fontSize: '12px',
+            fontWeight: 600,
+            color: 'var(--accent-blue)',
+            marginBottom: '16px',
+          }}
+        >
+          <Sparkles size={14} />
+          <span>Next-Generation Autonomous Research OS</span>
         </div>
-        <h1 style={{ fontSize: '28px', fontWeight: 600, color: 'var(--text-primary)', marginTop: '4px' }}>
-          Autonomous Data Intelligence Workspace
+
+        <h1
+          style={{
+            fontSize: '44px',
+            fontWeight: 800,
+            letterSpacing: '-0.03em',
+            lineHeight: 1.15,
+            maxWidth: '820px',
+            margin: '0 auto',
+          }}
+        >
+          Turn any business question into <span className="gradient-text">verified, living datasets</span>.
         </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '4px' }}>
-          Ask a business question in natural language. Get an evidence-backed, traceable, living dataset.
+
+        <p
+          style={{
+            color: 'var(--text-secondary)',
+            fontSize: '16px',
+            maxWidth: '620px',
+            margin: '12px auto 0',
+            lineHeight: 1.6,
+          }}
+        >
+          Dynamic AI research pipelines that collect permitted records, cross-check discrepancies, and monitor for changes over time.
         </p>
       </div>
 
-      {/* Hero Research Prompt Input (DESIGN.md Section 18) */}
+      {/* Floating Glassmorphic Command Box (Vercel / Raycast Inspired) */}
       <div
-        className="dataforge-card"
+        className="glass-panel-elevated animated-gradient-border"
         style={{
-          background: 'linear-gradient(180deg, #11161B 0%, #0D1115 100%)',
-          borderColor: 'var(--border-strong)',
-          padding: '28px',
+          padding: '24px 28px',
+          borderRadius: '18px',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-          <label style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-            WHAT DO YOU NEED TO KNOW?
-          </label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--accent-cyan)' }}>
-            <Sparkles size={13} />
-            <span>AI Autonomous Research Engine Ready</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+            <Search size={15} color="var(--accent-blue)" />
+            <span>Autonomous Intelligence Query</span>
           </div>
+
+          <span className="badge-pill badge-pill-accent">
+            Gemini & Ollama Ready
+          </span>
         </div>
 
         <div style={{ position: 'relative' }}>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe a business data requirement in plain English... e.g. Find Indian SaaS companies that raised funding recently, have 50–500 employees, are actively hiring, and show cybersecurity demand signals."
+            placeholder="Describe your data requirement in plain English... e.g. Find Indian SaaS companies that raised funding recently, have 50–500 employees, are actively hiring, and show cybersecurity demand signals."
             rows={3}
             style={{
               width: '100%',
-              background: 'var(--bg-primary)',
-              border: '1px solid var(--border-primary)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '16px',
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border-default)',
+              borderRadius: '12px',
+              padding: '16px 18px',
               fontSize: '15px',
               lineHeight: 1.5,
               resize: 'none',
               outline: 'none',
-              transition: 'border-color 0.15s ease',
+              boxShadow: 'var(--shadow-sm)',
+              transition: 'border-color 0.2s ease',
             }}
-            onFocus={(e) => (e.target.style.borderColor = 'var(--accent-cyan)')}
-            onBlur={(e) => (e.target.style.borderColor = 'var(--border-primary)')}
           />
         </div>
 
-        {/* Action Controls & Suggested Scenarios */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '16px' }}>
+        {/* Action Bar */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '18px', flexWrap: 'wrap', gap: '12px' }}>
+          {/* Quick Scenario Pills */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Suggested Scenarios:</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>Try Demo:</span>
             {DEMO_SCENARIOS.slice(0, 3).map((sc) => (
               <button
                 key={sc.id}
@@ -128,13 +163,13 @@ export default function OverviewPage() {
                   setPrompt(sc.prompt);
                   setSelectedScenario(sc.id);
                 }}
+                className="btn-luxury-secondary"
                 style={{
                   fontSize: '11px',
-                  padding: '5px 10px',
-                  borderRadius: 'var(--radius-sm)',
-                  background: selectedScenario === sc.id ? 'var(--accent-cyan-subtle)' : 'var(--bg-elevated)',
-                  border: selectedScenario === sc.id ? '1px solid var(--accent-cyan)' : '1px solid var(--border-primary)',
-                  color: selectedScenario === sc.id ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                  padding: '5px 12px',
+                  borderRadius: '20px',
+                  background: selectedScenario === sc.id ? 'var(--accent-subtle)' : undefined,
+                  borderColor: selectedScenario === sc.id ? 'var(--accent-blue)' : undefined,
                 }}
               >
                 {sc.title}
@@ -145,141 +180,130 @@ export default function OverviewPage() {
           <button
             onClick={() => handleStartResearch()}
             disabled={isSubmitting || !prompt.trim()}
-            className="btn-primary"
+            className="btn-luxury-primary"
             style={{ padding: '10px 24px', fontSize: '14px' }}
           >
-            <Search size={16} />
-            <span>{isSubmitting ? 'Planning...' : 'Run Autonomous Research'}</span>
+            <Sparkles size={16} />
+            <span>{isSubmitting ? 'Generating Pipeline...' : 'Run Autonomous Research'}</span>
           </button>
         </div>
       </div>
 
-      {/* KPI Cards Row (DESIGN.md Section 17) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
-        <div className="dataforge-card" style={{ padding: '18px' }}>
+      {/* Modern KPI Cards Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '20px' }}>
+        <div className="glass-panel" style={{ padding: '22px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
-              DATASETS
-            </span>
-            <Database size={16} color="var(--accent-cyan)" />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>LIVING DATASETS</span>
+            <div style={{ padding: '7px', borderRadius: '8px', background: 'var(--accent-subtle)' }}>
+              <Database size={17} color="var(--accent-blue)" />
+            </div>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 600, marginTop: '8px' }}>{datasets.length || 1}</div>
-          <div style={{ fontSize: '11px', color: 'var(--color-verified)', marginTop: '4px' }}>
-            ● Living & Monitored
+          <div style={{ fontSize: '28px', fontWeight: 800, marginTop: '12px' }}>{datasets.length || 1}</div>
+          <div style={{ fontSize: '12px', color: 'var(--color-success)', marginTop: '4px', fontWeight: 500 }}>
+            ● Continuous Monitoring Active
           </div>
         </div>
 
-        <div className="dataforge-card" style={{ padding: '18px' }}>
+        <div className="glass-panel" style={{ padding: '22px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
-              VERIFIED RECORDS
-            </span>
-            <CheckCircle2 size={16} color="var(--color-verified)" />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>VERIFIED RECORDS</span>
+            <div style={{ padding: '7px', borderRadius: '8px', background: 'var(--color-success-bg)' }}>
+              <CheckCircle2 size={17} color="var(--color-success)" />
+            </div>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 600, marginTop: '8px' }}>
+          <div style={{ fontSize: '28px', fontWeight: 800, marginTop: '12px' }}>
             {primaryDataset?.recordsCount || 24}
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            100% Provenance-Backed
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+            100% Traceable Lineage
           </div>
         </div>
 
-        <div className="dataforge-card" style={{ padding: '18px' }}>
+        <div className="glass-panel" style={{ padding: '22px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
-              OVERALL QUALITY
-            </span>
-            <ShieldCheck size={16} color="var(--accent-cyan)" />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>SYSTEM QUALITY</span>
+            <div style={{ padding: '7px', borderRadius: '8px', background: 'var(--accent-subtle)' }}>
+              <ShieldCheck size={17} color="var(--accent-cyan)" />
+            </div>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 600, marginTop: '8px' }}>
+          <div style={{ fontSize: '28px', fontWeight: 800, marginTop: '12px' }}>
             {Math.round((primaryDataset?.quality?.overallScore || 0.93) * 100)}%
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--color-verified)', marginTop: '4px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--color-success)', marginTop: '4px', fontWeight: 500 }}>
             High Enterprise Trust
           </div>
         </div>
 
-        <div className="dataforge-card" style={{ padding: '18px' }}>
+        <div className="glass-panel" style={{ padding: '22px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
-              CONFLICTS RESOLVED
-            </span>
-            <AlertTriangle size={16} color="var(--color-conflict)" />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>CONFLICT RESOLUTION</span>
+            <div style={{ padding: '7px', borderRadius: '8px', background: 'var(--color-conflict-bg)' }}>
+              <AlertTriangle size={17} color="var(--color-conflict)" />
+            </div>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 600, marginTop: '8px' }}>
-            2 / 2
-          </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Multi-Source Consensus
-          </div>
-        </div>
-
-        <div className="dataforge-card" style={{ padding: '18px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
-              SOURCES MONITORED
-            </span>
-            <Activity size={16} color="var(--accent-cyan)" />
-          </div>
-          <div style={{ fontSize: '24px', fontWeight: 600, marginTop: '8px' }}>5</div>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Registries, Domains, Feeds
+          <div style={{ fontSize: '28px', fontWeight: 800, marginTop: '12px' }}>2 / 2</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+            Cross-Source Consensus
           </div>
         </div>
       </div>
 
-      {/* Main Grid: Dataset Overview & Quality Center */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
-        {/* Left: Active Intelligence Datasets */}
-        <div className="dataforge-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+      {/* Main Grid: Active Living Datasets & Quality Center */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.9fr 1.1fr', gap: '24px' }}>
+        {/* Active Datasets Panel */}
+        <div className="glass-panel" style={{ padding: '26px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
             <div>
-              <h2 style={{ fontSize: '16px', fontWeight: 600 }}>Active Living Datasets</h2>
-              <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                Structured datasets generated from natural language research.
+              <h2 style={{ fontSize: '18px', fontWeight: 700 }}>Living Intelligence Datasets</h2>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                Monitored datasets with version control and automated change detection.
               </p>
             </div>
-            <Link href="/datasets" className="btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }}>
-              <span>View All Datasets</span>
-              <ArrowRight size={14} />
+            <Link href="/datasets" className="btn-luxury-secondary" style={{ fontSize: '12px', padding: '6px 14px' }}>
+              <span>View All</span>
+              <ArrowRight size={13} />
             </Link>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {datasets.map((d) => (
               <div
                 key={d.id}
                 style={{
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '16px',
+                  background: 'var(--bg-surface-elevated)',
+                  border: '1px solid var(--border-default)',
+                  borderRadius: '12px',
+                  padding: '18px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
+                  gap: '16px',
+                  boxShadow: 'var(--shadow-sm)',
                 }}
               >
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>{d.name}</span>
-                    <span className="badge badge-verified">● {d.status}</span>
-                    <span className="badge badge-synthetic">SYNTHETIC</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontWeight: 700, fontSize: '15px' }}>{d.name}</span>
+                    <span className="badge-pill badge-pill-success">● {d.status}</span>
+                    <span className="badge-pill badge-pill-warning">SYNTHETIC</span>
                   </div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', maxWidth: '560px' }}>
+
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '6px', maxWidth: '580px', lineHeight: 1.4 }}>
                     {d.description}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '8px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                  </p>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginTop: '10px', fontSize: '12px', color: 'var(--text-muted)' }}>
                     <span>Records: <strong style={{ color: 'var(--text-primary)' }}>{d.recordsCount}</strong></span>
-                    <span>Version: <strong style={{ color: 'var(--accent-cyan)' }}>{d.currentVersion}</strong></span>
-                    <span>Check Frequency: <strong style={{ color: 'var(--text-primary)' }}>{d.monitoring.frequency}</strong></span>
+                    <span>Version: <strong style={{ color: 'var(--accent-blue)' }}>{d.currentVersion}</strong></span>
+                    <span>Monitoring: <strong style={{ color: 'var(--text-primary)' }}>{d.monitoring.frequency}</strong></span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <Link href={`/datasets?id=${d.id}`} className="btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <Link href={`/datasets?id=${d.id}`} className="btn-luxury-secondary" style={{ fontSize: '12px', padding: '6px 14px' }}>
                     Explorer
                   </Link>
-                  <Link href={`/intelligence?datasetId=${d.id}`} className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>
+                  <Link href={`/intelligence?datasetId=${d.id}`} className="btn-luxury-primary" style={{ fontSize: '12px', padding: '6px 14px' }}>
                     Graph
                   </Link>
                 </div>
@@ -288,50 +312,50 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        {/* Right: Quality & Trust Metrics (DESIGN.md Section 34) */}
-        <div className="dataforge-card">
-          <h2 style={{ fontSize: '16px', fontWeight: 600 }}>Data Quality Center</h2>
-          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '16px' }}>
-            System confidence & multi-source validation metrics.
+        {/* Quality & Trust Center Panel */}
+        <div className="glass-panel" style={{ padding: '26px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 700 }}>Data Quality Center</h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px', marginBottom: '22px' }}>
+            Multi-factor verification and provenance benchmarks.
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Evidence Coverage</span>
-                <span className="font-mono" style={{ color: 'var(--accent-cyan)', fontWeight: 600 }}>95%</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Evidence Coverage</span>
+                <span className="font-mono" style={{ color: 'var(--accent-cyan)', fontWeight: 700 }}>95%</span>
               </div>
-              <div style={{ height: '6px', background: 'var(--bg-primary)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ width: '95%', height: '100%', background: 'var(--accent-cyan)' }} />
+              <div style={{ height: '7px', background: 'var(--bg-app)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: '95%', height: '100%', background: 'var(--accent-gradient)' }} />
               </div>
             </div>
 
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Field Completeness</span>
-                <span className="font-mono" style={{ color: 'var(--color-verified)', fontWeight: 600 }}>88%</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Field Completeness</span>
+                <span className="font-mono" style={{ color: 'var(--color-success)', fontWeight: 700 }}>88%</span>
               </div>
-              <div style={{ height: '6px', background: 'var(--bg-primary)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ width: '88%', height: '100%', background: 'var(--color-verified)' }} />
-              </div>
-            </div>
-
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Cross-Source Consistency</span>
-                <span className="font-mono" style={{ color: 'var(--color-verified)', fontWeight: 600 }}>93%</span>
-              </div>
-              <div style={{ height: '6px', background: 'var(--bg-primary)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ width: '93%', height: '100%', background: 'var(--color-verified)' }} />
+              <div style={{ height: '7px', background: 'var(--bg-app)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: '88%', height: '100%', background: 'var(--color-success)' }} />
               </div>
             </div>
 
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Source Freshness</span>
-                <span className="font-mono" style={{ color: 'var(--color-warning)', fontWeight: 600 }}>89%</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Cross-Source Consistency</span>
+                <span className="font-mono" style={{ color: 'var(--color-success)', fontWeight: 700 }}>93%</span>
               </div>
-              <div style={{ height: '6px', background: 'var(--bg-primary)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ height: '7px', background: 'var(--bg-app)', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: '93%', height: '100%', background: 'var(--color-success)' }} />
+              </div>
+            </div>
+
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Source Recency & Freshness</span>
+                <span className="font-mono" style={{ color: 'var(--color-warning)', fontWeight: 700 }}>89%</span>
+              </div>
+              <div style={{ height: '7px', background: 'var(--bg-app)', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ width: '89%', height: '100%', background: 'var(--color-warning)' }} />
               </div>
             </div>
@@ -339,17 +363,17 @@ export default function OverviewPage() {
 
           <div
             style={{
-              marginTop: '20px',
-              padding: '12px',
-              background: 'var(--bg-secondary)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-subtle)',
-              fontSize: '11px',
+              marginTop: '26px',
+              padding: '14px',
+              background: 'var(--bg-surface-elevated)',
+              borderRadius: '10px',
+              border: '1px solid var(--border-default)',
+              fontSize: '12px',
               color: 'var(--text-secondary)',
-              lineHeight: 1.4,
+              lineHeight: 1.5,
             }}
           >
-            <strong style={{ color: 'var(--text-primary)' }}>Trust Principle:</strong> Confidence is calculated from multi-source agreement, authoritative registries (ROC/MCA), and observation recency. Unsupported values are marked unknown.
+            <strong style={{ color: 'var(--text-primary)' }}>Integrity Guarantee:</strong> Values without multiple supporting observations are flagged for human review or marked explicitly unknown.
           </div>
         </div>
       </div>

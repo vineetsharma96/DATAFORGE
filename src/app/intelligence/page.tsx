@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Network,
@@ -38,14 +38,13 @@ function IntelligenceContent() {
       .then((res) => res.json())
       .then((data) => {
         if (data.graphData) {
-          // Initialize deterministic positions in a radial/force layout
           const nodesWithCoords = data.graphData.nodes.map((node: GraphNode, index: number) => {
             const angle = (index / data.graphData.nodes.length) * 2 * Math.PI;
             const distance = node.type === 'company' ? 180 : node.type === 'source' ? 360 : 270;
             return {
               ...node,
               x: 480 + Math.cos(angle) * distance + (index % 3) * 20,
-              y: 340 + Math.sin(angle) * distance + (index % 2) * 20,
+              y: 330 + Math.sin(angle) * distance + (index % 2) * 20,
             };
           });
           setGraphData({ nodes: nodesWithCoords, edges: data.graphData.edges });
@@ -78,29 +77,33 @@ function IntelligenceContent() {
   filteredNodes.forEach((n) => nodePositionMap.set(n.id, { x: n.x || 0, y: n.y || 0 }));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', maxWidth: '1360px', margin: '0 auto' }}>
+      {/* Header Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <div style={{ fontSize: '11px', color: 'var(--accent-cyan)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
-            RELATIONSHIP & PROVENANCE GRAPH
+          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-blue)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            INTELLIGENCE GRAPH & DISCOVERY
           </div>
-          <h1 style={{ fontSize: '24px', fontWeight: 600, marginTop: '2px' }}>Evidence & Intelligence Graph</h1>
+          <h1 style={{ fontSize: '24px', fontWeight: 800, marginTop: '2px', letterSpacing: '-0.02em' }}>
+            Evidence & Relationship Graph
+          </h1>
         </div>
 
-        {/* Filter buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Filter Pills */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           {['all', 'company', 'funding_round', 'opportunity', 'source'].map((t) => (
             <button
               key={t}
               onClick={() => setFilterType(t)}
+              className="btn-luxury-secondary"
               style={{
                 fontSize: '11px',
-                padding: '4px 10px',
-                borderRadius: 'var(--radius-sm)',
-                background: filterType === t ? 'var(--accent-cyan-subtle)' : 'var(--bg-secondary)',
-                border: filterType === t ? '1px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
-                color: filterType === t ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                padding: '5px 12px',
+                borderRadius: '20px',
+                background: filterType === t ? 'var(--accent-subtle)' : undefined,
+                borderColor: filterType === t ? 'var(--accent-blue)' : undefined,
+                color: filterType === t ? 'var(--accent-blue)' : undefined,
+                fontWeight: filterType === t ? 700 : 500,
                 textTransform: 'capitalize',
               }}
             >
@@ -110,11 +113,11 @@ function IntelligenceContent() {
         </div>
       </div>
 
-      {/* Main Graph & Inspector Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: selectedNode ? '2.5fr 1fr' : '1fr', gap: '20px' }}>
+      {/* Main Canvas & Inspector Split */}
+      <div style={{ display: 'grid', gridTemplateColumns: selectedNode ? '2.5fr 1fr' : '1fr', gap: '24px' }}>
         {/* Canvas Area */}
         <div
-          className="dataforge-card"
+          className="glass-panel"
           style={{
             height: '620px',
             position: 'relative',
@@ -127,20 +130,20 @@ function IntelligenceContent() {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         >
-          {/* Controls Overlay */}
-          <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, display: 'flex', gap: '6px' }}>
+          {/* Floating Controls */}
+          <div style={{ position: 'absolute', top: 18, right: 18, zIndex: 10, display: 'flex', gap: '6px' }}>
             <button
               onClick={() => setZoom((z) => Math.min(2, z + 0.15))}
-              className="btn-secondary"
-              style={{ padding: '6px 10px' }}
+              className="btn-luxury-secondary"
+              style={{ padding: '7px 11px', borderRadius: '8px' }}
               title="Zoom In"
             >
               <ZoomIn size={14} />
             </button>
             <button
               onClick={() => setZoom((z) => Math.max(0.5, z - 0.15))}
-              className="btn-secondary"
-              style={{ padding: '6px 10px' }}
+              className="btn-luxury-secondary"
+              style={{ padding: '7px 11px', borderRadius: '8px' }}
               title="Zoom Out"
             >
               <ZoomOut size={14} />
@@ -150,8 +153,8 @@ function IntelligenceContent() {
                 setZoom(1);
                 setPan({ x: 0, y: 0 });
               }}
-              className="btn-secondary"
-              style={{ padding: '6px 10px' }}
+              className="btn-luxury-secondary"
+              style={{ padding: '7px 11px', borderRadius: '8px' }}
               title="Reset View"
             >
               <Maximize2 size={14} />
@@ -176,10 +179,10 @@ function IntelligenceContent() {
                     y1={s.y}
                     x2={t.x}
                     y2={t.y}
-                    stroke={isHighlighted ? 'var(--accent-cyan)' : 'var(--border-strong)'}
-                    strokeWidth={isHighlighted ? 1.8 : 0.8}
+                    stroke={isHighlighted ? 'var(--accent-blue)' : 'var(--border-strong)'}
+                    strokeWidth={isHighlighted ? 2 : 1}
                     strokeDasharray={edge.type === 'EVIDENCED_BY' ? '4 3' : 'none'}
-                    opacity={isHighlighted ? 1 : 0.6}
+                    opacity={isHighlighted ? 1 : 0.45}
                   />
                 );
               })}
@@ -199,33 +202,33 @@ function IntelligenceContent() {
                     }}
                     style={{ cursor: 'pointer' }}
                   >
-                    {/* Outer Glow on Selected */}
+                    {/* Glow outline on selection */}
                     {isSelected && (
                       <circle
-                        r={radius + 6}
+                        r={radius + 8}
                         fill="none"
-                        stroke="var(--accent-cyan)"
+                        stroke="var(--accent-blue)"
                         strokeWidth="2"
                         opacity="0.8"
                       />
                     )}
 
-                    {/* Node Circle */}
+                    {/* Node circle */}
                     <circle
                       r={radius}
-                      fill="var(--bg-elevated)"
-                      stroke={node.color || 'var(--accent-cyan)'}
-                      strokeWidth={isSelected ? 3 : 1.5}
+                      fill="var(--bg-surface-elevated)"
+                      stroke={node.color || 'var(--accent-blue)'}
+                      strokeWidth={isSelected ? 3 : 1.8}
                     />
 
-                    {/* Node Text Label */}
+                    {/* Node label */}
                     <text
-                      y={radius + 14}
+                      y={radius + 15}
                       textAnchor="middle"
                       fill="var(--text-primary)"
                       fontSize="11px"
                       fontFamily="var(--font-mono)"
-                      fontWeight={isSelected ? 600 : 400}
+                      fontWeight={isSelected ? 700 : 500}
                     >
                       {node.label.length > 22 ? `${node.label.substring(0, 20)}...` : node.label}
                     </text>
@@ -236,98 +239,94 @@ function IntelligenceContent() {
           </svg>
         </div>
 
-        {/* Right Node Inspector (DESIGN.md Section 36) */}
+        {/* Right Node Inspector */}
         {selectedNode && (
-          <div className="dataforge-card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '10px' }}>
+          <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px' }}>
               <div>
                 <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>
                   {selectedNode.type.replace('_', ' ')} NODE
                 </span>
-                <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                <h3 style={{ fontSize: '17px', fontWeight: 700, marginTop: '2px' }}>
                   {selectedNode.data.title || selectedNode.label}
                 </h3>
               </div>
               <button onClick={() => setSelectedNode(null)} style={{ color: 'var(--text-muted)' }}>
-                <X size={16} />
+                <X size={17} />
               </button>
             </div>
 
-            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
               {selectedNode.data.subtitle}
             </div>
 
             {selectedNode.data.confidence !== undefined && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Confidence Score</span>
-                <span className="badge badge-verified">● {Math.round(selectedNode.data.confidence * 100)}%</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--bg-surface-elevated)', borderRadius: '8px' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Confidence Score</span>
+                <span className="badge-pill badge-pill-success">● {Math.round(selectedNode.data.confidence * 100)}%</span>
               </div>
             )}
 
             {selectedNode.data.properties && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Attributes</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>ATTRIBUTES</span>
                 {Object.entries(selectedNode.data.properties).map(([k, v]) => (
                   <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                     <span style={{ color: 'var(--text-muted)', textTransform: 'capitalize' }}>{k}:</span>
-                    <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{String(v)}</span>
+                    <span style={{ fontWeight: 600 }}>{String(v)}</span>
                   </div>
                 ))}
               </div>
             )}
-
-            <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                Directly connected to verified public sources and observational telemetry.
-              </span>
-            </div>
           </div>
         )}
       </div>
 
-      {/* AI Opportunity Signals & Market Insights (DESIGN.md Section 40, prompt section 21) */}
-      <div className="dataforge-card">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-          <Sparkles size={16} color="var(--accent-cyan)" />
-          <h2 style={{ fontSize: '15px', fontWeight: 600 }}>AI Intelligence Signals (Fact vs Inference)</h2>
+      {/* AI Opportunity Signals & Market Insights */}
+      <div className="glass-panel" style={{ padding: '28px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <Sparkles size={18} color="var(--accent-blue)" />
+          <h2 style={{ fontSize: '18px', fontWeight: 700 }}>AI Intelligence Signals (Observed Fact vs Inference)</h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '20px' }}>
           {insights.map((ins) => (
             <div
               key={ins.id}
               style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-md)',
-                padding: '16px',
+                background: 'var(--bg-surface-elevated)',
+                border: '1px solid var(--border-default)',
+                borderRadius: '12px',
+                padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px',
+                gap: '14px',
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>{ins.title}</span>
-                <span className="badge badge-warning">● {Math.round(ins.confidence * 100)}% Confidence</span>
+                <span style={{ fontWeight: 700, fontSize: '15px' }}>{ins.title}</span>
+                <span className="badge-pill badge-pill-warning">● {Math.round(ins.confidence * 100)}% Confidence</span>
               </div>
 
-              {/* Distinguishing Observed facts vs Inferred signal */}
-              <div style={{ padding: '8px 12px', background: 'var(--bg-primary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
-                <div style={{ fontSize: '10px', color: 'var(--color-verified)', fontWeight: 600, textTransform: 'uppercase' }}>
+              {/* Observed Facts */}
+              <div style={{ padding: '12px 14px', background: 'var(--bg-app)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--color-success)', fontWeight: 700, textTransform: 'uppercase' }}>
                   OBSERVED EVIDENCE (FACTS)
                 </div>
-                <ul style={{ paddingLeft: '16px', marginTop: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                <ul style={{ paddingLeft: '18px', marginTop: '6px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                   {ins.observedFacts.map((fact, idx) => (
                     <li key={idx}>{fact}</li>
                   ))}
                 </ul>
               </div>
 
-              <div style={{ padding: '8px 12px', background: 'rgba(77, 220, 255, 0.06)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(77, 220, 255, 0.2)' }}>
-                <div style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontWeight: 600, textTransform: 'uppercase' }}>
+              {/* Inferred Signal */}
+              <div style={{ padding: '12px 14px', background: 'var(--accent-subtle)', borderRadius: '8px', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--accent-blue)', fontWeight: 700, textTransform: 'uppercase' }}>
                   AI-DERIVED OPPORTUNITY SIGNAL (INFERENCE)
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-primary)', marginTop: '4px', lineHeight: 1.4 }}>
+                <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginTop: '4px', lineHeight: 1.5 }}>
                   {ins.inferredSignal}
                 </div>
               </div>

@@ -12,13 +12,14 @@ import {
   History,
   Settings,
   Sparkles,
-  Cpu,
   Layers,
   Play,
-  CheckCircle2,
-  AlertTriangle,
-  ArrowRight,
+  Sun,
+  Moon,
+  ChevronRight,
   ExternalLink,
+  ShieldCheck,
+  Zap,
 } from 'lucide-react';
 
 interface AppShellProps {
@@ -29,11 +30,19 @@ export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const router = useRouter();
 
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [activeProvider, setActiveProvider] = useState<string>('gemini');
   const [providerStatus, setProviderStatus] = useState<string>('Connected');
   const [isLaunchingDemo, setIsLaunchingDemo] = useState(false);
 
+  // Initialize theme from storage or system preference
   useEffect(() => {
+    const savedTheme = localStorage.getItem('dataforge-theme') as 'dark' | 'light' | null;
+    const initialTheme = savedTheme || 'dark';
+    setTheme(initialTheme);
+    document.documentElement.setAttribute('data-theme', initialTheme);
+
+    // Fetch AI provider status
     fetch('/api/ai')
       .then((res) => res.json())
       .then((data) => {
@@ -45,6 +54,13 @@ export function AppShell({ children }: AppShellProps) {
       })
       .catch((err) => console.warn('Could not fetch AI status', err));
   }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('dataforge-theme', nextTheme);
+  };
 
   const handleLaunchDemo = async () => {
     setIsLaunchingDemo(true);
@@ -72,13 +88,15 @@ export function AppShell({ children }: AppShellProps) {
   ];
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-app)', position: 'relative' }}>
       {/* Sidebar */}
       <aside
         style={{
-          width: 'var(--sidebar-width)',
+          width: '240px',
           borderRight: '1px solid var(--border-subtle)',
-          background: 'var(--bg-secondary)',
+          background: 'var(--bg-sidebar)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
           display: 'flex',
           flexDirection: 'column',
           position: 'sticky',
@@ -88,36 +106,36 @@ export function AppShell({ children }: AppShellProps) {
         }}
       >
         {/* Brand */}
-        <div style={{ padding: '20px', borderBottom: '1px solid var(--border-subtle)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ padding: '24px 20px', borderBottom: '1px solid var(--border-subtle)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: 'var(--radius-md)',
-                background: 'var(--accent-cyan-subtle)',
-                border: '1px solid rgba(77, 220, 255, 0.4)',
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background: 'var(--accent-gradient)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--accent-cyan)',
+                color: '#FFFFFF',
+                boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)',
               }}
             >
-              <Cpu size={18} />
+              <Zap size={18} fill="currentColor" />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '15px', letterSpacing: '0.04em', color: 'var(--text-primary)' }}>
+              <div style={{ fontWeight: 800, fontSize: '16px', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
                 DATAFORGE
               </div>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                Autonomous Intelligence
+              <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Data Intelligence OS
               </div>
             </div>
           </div>
         </div>
 
         {/* Navigation Items */}
-        <nav style={{ padding: '16px 12px', flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <nav style={{ padding: '20px 12px', flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
@@ -130,173 +148,144 @@ export function AppShell({ children }: AppShellProps) {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '12px',
-                  padding: '9px 12px',
-                  borderRadius: 'var(--radius-md)',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
                   fontSize: '13px',
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? 'var(--accent-cyan)' : 'var(--text-secondary)',
-                  background: isActive ? 'var(--accent-cyan-subtle)' : 'transparent',
-                  border: isActive ? '1px solid rgba(77, 220, 255, 0.25)' : '1px solid transparent',
+                  fontWeight: isActive ? 600 : 500,
+                  color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  background: isActive ? 'var(--bg-surface-elevated)' : 'transparent',
+                  border: isActive ? '1px solid var(--border-default)' : '1px solid transparent',
+                  boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
                   transition: 'all 0.15s ease',
                 }}
               >
-                <Icon size={16} />
+                <Icon size={16} color={isActive ? 'var(--accent-blue)' : 'currentColor'} />
                 <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Quick Launch Demo in Sidebar */}
+        {/* Bottom CTA / Flagship Demo */}
         <div style={{ padding: '16px', borderTop: '1px solid var(--border-subtle)' }}>
           <button
             onClick={handleLaunchDemo}
             disabled={isLaunchingDemo}
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              padding: '10px',
-              background: 'linear-gradient(135deg, rgba(77, 220, 255, 0.15), rgba(95, 227, 161, 0.15))',
-              border: '1px solid rgba(77, 220, 255, 0.3)',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--accent-cyan)',
-              fontSize: '12px',
-              fontWeight: 600,
-            }}
+            className="btn-luxury-primary"
+            style={{ width: '100%', fontSize: '12px', padding: '10px' }}
           >
-            <Play size={14} fill="currentColor" />
-            <span>{isLaunchingDemo ? 'Launching...' : 'Run Flagship Demo'}</span>
+            <Play size={13} fill="currentColor" />
+            <span>{isLaunchingDemo ? 'Orchestrating...' : 'Launch Demo'}</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        {/* Synthetic Demonstration Mode Banner (DESIGN.md Section 45) */}
+        {/* Subtle Demonstration Banner */}
         <div
           style={{
-            background: 'rgba(245, 196, 81, 0.08)',
-            borderBottom: '1px solid rgba(245, 196, 81, 0.2)',
-            padding: '6px 24px',
+            background: 'var(--accent-subtle)',
+            borderBottom: '1px solid var(--border-subtle)',
+            padding: '6px 28px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             fontSize: '11px',
-            color: '#F5C451',
-            fontFamily: 'var(--font-mono)',
+            color: 'var(--text-secondary)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span
               style={{
-                display: 'inline-block',
                 width: '6px',
                 height: '6px',
                 borderRadius: '50%',
-                background: '#F5C451',
+                background: 'var(--accent-cyan)',
+                display: 'inline-block',
               }}
             />
-            <span>SYNTHETIC DEMONSTRATION DATA MODE ACTIVE</span>
-            <span style={{ color: 'var(--text-muted)' }}>— 100% Deterministic, Provable Provenance & Offline Verification</span>
+            <strong style={{ color: 'var(--text-primary)' }}>SYNTHETIC DEMO MODE ACTIVE</strong>
+            <span>— Provable Multi-Source Provenance & Deterministic Offline Verification</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Model Routing: Gemini 2.5 Flash / Ollama Local</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', fontFamily: 'var(--font-mono)', fontSize: '10px' }}>
+            <span>ACTIVE ENGINE: {activeProvider.toUpperCase()}</span>
           </div>
         </div>
 
-        {/* Top Bar */}
+        {/* Top Header Bar */}
         <header
           style={{
-            height: 'var(--topbar-height)',
+            height: '64px',
             borderBottom: '1px solid var(--border-subtle)',
-            background: 'var(--bg-secondary)',
+            background: 'var(--bg-header)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '0 24px',
+            padding: '0 32px',
+            position: 'sticky',
+            top: 0,
+            zIndex: 30,
           }}
         >
-          {/* Breadcrumb / Title */}
+          {/* Breadcrumb Path */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
             <span style={{ color: 'var(--text-muted)' }}>DATAFORGE</span>
-            <span style={{ color: 'var(--border-strong)' }}>/</span>
-            <span style={{ color: 'var(--text-primary)', fontWeight: 500, textTransform: 'capitalize' }}>
-              {pathname === '/' ? 'Intelligence Overview' : pathname.replace('/', '')}
+            <ChevronRight size={14} color="var(--text-disabled)" />
+            <span style={{ fontWeight: 600, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+              {pathname === '/' ? 'Overview' : pathname.replace('/', '')}
             </span>
           </div>
 
-          {/* Center Data Flow Indicator */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '4px 12px',
-              borderRadius: '20px',
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--border-subtle)',
-              fontSize: '11px',
-              fontFamily: 'var(--font-mono)',
-              color: 'var(--text-muted)',
-            }}
-          >
-            <span>PROMPT</span>
-            <span style={{ color: 'var(--accent-cyan)' }}>→</span>
-            <span>AI PLAN</span>
-            <span style={{ color: 'var(--accent-cyan)' }}>→</span>
-            <span>EVIDENCE</span>
-            <span style={{ color: 'var(--color-verified)' }}>→</span>
-            <span style={{ color: 'var(--color-verified)' }}>LIVING DATASET</span>
-          </div>
+          {/* Right Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            {/* Theme Toggle (Light / Dark) */}
+            <button
+              onClick={toggleTheme}
+              className="btn-luxury-secondary"
+              style={{ padding: '7px 11px', borderRadius: '20px' }}
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+            >
+              {theme === 'dark' ? <Sun size={15} color="#F59E0B" /> : <Moon size={15} color="#6366F1" />}
+            </button>
 
-          {/* Right Provider Status */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Provider Pill */}
             <Link
               href="/settings"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '5px 12px',
-                borderRadius: 'var(--radius-sm)',
-                background: 'var(--bg-elevated)',
-                border: '1px solid var(--border-primary)',
-                fontSize: '11px',
-                fontFamily: 'var(--font-mono)',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                background: 'var(--bg-surface-elevated)',
+                border: '1px solid var(--border-default)',
+                fontSize: '12px',
                 color: 'var(--text-secondary)',
+                boxShadow: 'var(--shadow-sm)',
               }}
             >
               <span
                 style={{
-                  display: 'inline-block',
-                  width: '6px',
-                  height: '6px',
+                  width: '7px',
+                  height: '7px',
                   borderRadius: '50%',
-                  background: activeProvider === 'gemini' ? 'var(--accent-cyan)' : 'var(--color-verified)',
+                  background: activeProvider === 'gemini' ? 'var(--accent-cyan)' : 'var(--color-success)',
                 }}
               />
-              <span style={{ textTransform: 'uppercase', fontWeight: 600 }}>{activeProvider}</span>
-              <span style={{ color: 'var(--text-muted)' }}>({providerStatus})</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+                {activeProvider}
+              </span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>({providerStatus})</span>
             </Link>
-
-            <button
-              onClick={handleLaunchDemo}
-              disabled={isLaunchingDemo}
-              className="btn-primary"
-              style={{ padding: '6px 14px', fontSize: '12px' }}
-            >
-              <Sparkles size={14} />
-              <span>{isLaunchingDemo ? 'Processing...' : 'Launch Demo'}</span>
-            </button>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main style={{ flex: 1, padding: '24px 32px', overflowY: 'auto' }}>
+        {/* Content Container */}
+        <main style={{ flex: 1, padding: '32px 40px', overflowY: 'auto' }}>
           {children}
         </main>
       </div>
